@@ -1190,6 +1190,66 @@ window.addEventListener('load', function() {
         }
     }, 3000); // Wait 3 seconds for Firebase to load data
 });
+// COMPLETE FIX FOR FIREBASE DATA LOADING
+console.log('Initializing Firebase data loading...');
+
+// Force products to reload from Firebase every 3 seconds until they appear
+let attempts = 0;
+const maxAttempts = 10;
+
+const forceLoadProducts = setInterval(() => {
+    attempts++;
+    console.log(`Attempt ${attempts}: Checking for products...`);
+    console.log('Products in cache:', window.productsCache ? window.productsCache.length : 0);
+    
+    if (window.productsCache && window.productsCache.length > 0) {
+        console.log('✅ Products loaded! Rendering...');
+        
+        // Trigger all render functions
+        if (typeof renderProducts === 'function') {
+            renderProducts();
+            console.log('✅ renderProducts() called');
+        }
+        if (typeof updateDashboard === 'function') {
+            updateDashboard();
+            console.log('✅ updateDashboard() called');
+        }
+        if (typeof renderInventory === 'function') {
+            renderInventory();
+            console.log('✅ renderInventory() called');
+        }
+        if (typeof renderOrders === 'function') {
+            renderOrders();
+            console.log('✅ renderOrders() called');
+        }
+        if (typeof renderCustomers === 'function') {
+            renderCustomers();
+            console.log('✅ renderCustomers() called');
+        }
+        
+        clearInterval(forceLoadProducts);
+    } else if (attempts >= maxAttempts) {
+        console.error('❌ Failed to load products after', maxAttempts, 'attempts');
+        console.log('Checking Firebase connection...');
+        
+        // Try to manually load from Firebase
+        db.collection('products').get().then(snapshot => {
+            console.log('Firebase query result:', snapshot.size, 'products found');
+            window.productsCache = [];
+            snapshot.forEach(doc => {
+                window.productsCache.push(doc.data());
+            });
+            
+            if (typeof renderProducts === 'function') renderProducts();
+            if (typeof updateDashboard === 'function') updateDashboard();
+            if (typeof renderInventory === 'function') renderInventory();
+        }).catch(error => {
+            console.error('Firebase error:', error);
+        });
+        
+        clearInterval(forceLoadProducts);
+    }
+}, 3000); // Check every 3 seconds
 
 </script>
 
