@@ -810,6 +810,9 @@ db.collection('products').onSnapshot(snapshot => {
     snapshot.forEach(doc => {
         window.productsCache.push(doc.data());
     });
+      products = window.productsCache;
+  inventory = dataManager.getInventory();
+
     
     console.log('Products loaded:', window.productsCache.length);
     
@@ -851,6 +854,9 @@ db.collection('orders').onSnapshot(snapshot => {
     });
     
     window.customersCache = Object.values(customerMap);
+      orders = window.ordersCache;
+  customers = window.customersCache;
+
     
     console.log('Orders loaded:', window.ordersCache.length);
     console.log('Customers loaded:', window.customersCache.length);
@@ -877,10 +883,11 @@ console.log('Firebase initialized successfully');
 
     <script>
         // Load persistent data from shared data manager
-        let products = dataManager.getProducts();
-        let orders = dataManager.getOrders();
-        let customers = dataManager.getCustomers();
-        let inventory = dataManager.getInventory();
+       let products = window.productsCache || [];
+        let orders = window.ordersCache || [];
+        let customers = window.customersCache || [];
+        let inventory = [];
+
 
         function updateDashboard() {
             document.getElementById('totalOrders').textContent = orders.length;
