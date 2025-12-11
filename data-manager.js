@@ -8,8 +8,9 @@ class DataManager {
   }
 
   initializeDefaultData() {
-    if (!this.getProducts().length) {
-      this.setProducts([
+        const products = this.getProducts();
+        if (!products || products.length === 0) {
+    this.setProducts([
         { id: 1, name: 'Performance Tank', price: 79.99, category: 'tops', size: 'XS-XL', color: '#667eea', emoji: '👕', description: 'Breathable performance tank top perfect for intense workouts', stock: 50 },
         { id: 2, name: 'Compression Shirt', price: 99.99, category: 'tops', size: 'XS-XL', color: '#764ba2', emoji: '👔', description: 'Moisture-wicking compression shirt for maximum support', stock: 30 },
         { id: 3, name: 'Yoga Leggings', price: 149.99, category: 'bottoms', size: 'XS-XL', color: '#f093fb', emoji: '🩳', description: 'High-waisted yoga leggings with pockets for all-day comfort', stock: 5 },
