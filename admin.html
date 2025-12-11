@@ -653,7 +653,6 @@ const db = firebase.firestore();
 // Firebase Data Manager (replaces data-manager.js)
 const dataManager = {
     getProducts: function() {
-        // This will be loaded asynchronously - see below
         return window.productsCache || [];
     },
     
@@ -686,7 +685,11 @@ const dataManager = {
         };
         
         // Save to Firebase
-        db.collection('orders').doc(orderId).set(orderData);
+        db.collection('orders').doc(orderId).set(orderData).then(() => {
+            console.log('Order saved:', orderId);
+        }).catch(error => {
+            console.error('Error saving order:', error);
+        });
         
         // Update stock for each item
         order.items.forEach(item => {
@@ -696,7 +699,7 @@ const dataManager = {
                     const currentStock = doc.data().stock || 50;
                     productRef.update({
                         stock: Math.max(0, currentStock - item.quantity)
-                    });
+                    }).catch(error => console.error('Stock update error:', error));
                 }
             });
         });
@@ -705,14 +708,22 @@ const dataManager = {
     },
     
     updateStock: function(productId, newStock) {
-        db.collection('products').doc(productId.toString()).update({
+        return db.collection('products').doc(productId.toString()).update({
             stock: newStock
+        }).then(() => {
+            console.log('Stock updated for product:', productId);
+        }).catch(error => {
+            console.error('Error updating stock:', error);
         });
     },
     
     updateOrderStatus: function(orderId, status) {
-        db.collection('orders').doc(orderId).update({
+        return db.collection('orders').doc(orderId).update({
             status: status
+        }).then(() => {
+            console.log('Order status updated:', orderId);
+        }).catch(error => {
+            console.error('Error updating order status:', error);
         });
     },
     
@@ -720,18 +731,49 @@ const dataManager = {
         const productId = Date.now();
         const productData = {
             id: productId,
-            ...product,
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            size: product.size,
+            description: product.description,
             stock: 50,
-            emoji: '👕',
-            color: '#667eea'
+            emoji: this.getCategoryEmoji(product.category),
+            color: this.getCategoryColor(product.category)
         };
         
-        db.collection('products').doc(productId.toString()).set(productData);
-        return productData;
+        return db.collection('products').doc(productId.toString()).set(productData).then(() => {
+            console.log('Product added:', productId);
+            return productData;
+        }).catch(error => {
+            console.error('Error adding product:', error);
+            throw error;
+        });
     },
     
     deleteProduct: function(productId) {
-        db.collection('products').doc(productId.toString()).delete();
+        return db.collection('products').doc(productId.toString()).delete().then(() => {
+            console.log('Product deleted:', productId);
+        }).catch(error => {
+            console.error('Error deleting product:', error);
+        });
+    },
+    
+    getCategoryEmoji: function(category) {
+        const emojis = {
+            'tops': '👕',
+            'bottoms': '🩳',
+            'accessories': '🎒'
+        };
+        return emojis[category] || '👕';
+    },
+    
+    getCategoryColor: function(category) {
+        const colors = {
+            'tops': '#667eea',
+            'bottoms': '#8b5cf6',
+            'accessories': '#f59e0b'
+        };
+        return colors[category] || '#667eea';
     }
 };
 
@@ -754,9 +796,11 @@ db.collection('products').get().then(snapshot => {
             db.collection('products').doc(product.id.toString()).set(product);
         });
     }
+}).catch(error => {
+    console.error('Error checking products:', error);
 });
 
-// Load products from Firebase
+// Load products from Firebase with real-time updates
 window.productsCache = [];
 window.ordersCache = [];
 window.customersCache = [];
@@ -767,10 +811,20 @@ db.collection('products').onSnapshot(snapshot => {
         window.productsCache.push(doc.data());
     });
     
-    // Trigger products render if function exists
+    console.log('Products loaded:', window.productsCache.length);
+    
+    // Trigger renders if functions exist
     if (typeof renderProducts === 'function') {
         renderProducts();
     }
+    if (typeof renderInventory === 'function') {
+        renderInventory();
+    }
+    if (typeof updateDashboard === 'function') {
+        updateDashboard();
+    }
+}, error => {
+    console.error('Error loading products:', error);
 });
 
 db.collection('orders').onSnapshot(snapshot => {
@@ -798,6 +852,9 @@ db.collection('orders').onSnapshot(snapshot => {
     
     window.customersCache = Object.values(customerMap);
     
+    console.log('Orders loaded:', window.ordersCache.length);
+    console.log('Customers loaded:', window.customersCache.length);
+    
     // Trigger admin renders if functions exist
     if (typeof updateDashboard === 'function') {
         updateDashboard();
@@ -808,7 +865,14 @@ db.collection('orders').onSnapshot(snapshot => {
     if (typeof renderCustomers === 'function') {
         renderCustomers();
     }
+    if (typeof renderRecentOrders === 'function') {
+        renderRecentOrders();
+    }
+}, error => {
+    console.error('Error loading orders:', error);
 });
+
+console.log('Firebase initialized successfully');
 </script>
 
     <script>
