@@ -847,7 +847,10 @@ db.collection('products').onSnapshot(snapshot => {
     window.productsCache = [];
     snapshot.forEach(doc => {
         window.productsCache.push(doc.data());
+
     });
+      products = window.productsCache;
+
     
     console.log('Products loaded:', window.productsCache.length);
     
@@ -915,7 +918,8 @@ console.log('Firebase initialized successfully');
 
 
     <script>
-        let products = dataManager.getProducts();
+      let products = window.productsCache || [];
+
         let cart = [];
         let currentCategory = 'all';
         let selectedProduct = null;
