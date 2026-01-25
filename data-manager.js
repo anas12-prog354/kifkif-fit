@@ -19,6 +19,10 @@ class DataManager {
         { id: 6, name: 'Training Jacket', price: 199.99, category: 'tops', size: 'XS-XL', color: '#fa709a', emoji: '🧥', description: 'Water-resistant training jacket for outdoor activities', stock: 2 },
         { id: 7, name: 'Gym Socks', price: 34.99, category: 'accessories', size: 'One Size', color: '#fee140', emoji: '🧦', description: 'Cushioned gym socks with arch support', stock: 100 },
         { id: 8, name: 'Wrist Wraps', price: 39.99, category: 'accessories', size: 'One Size', color: '#30b0fe', emoji: '⏱️', description: 'Professional-grade wrist wraps for weightlifting', stock: 15 }
+              { id: 8, name: 'Wrist Wraps', price: 39.99, category: 'accessories', size: 'One Size', color: '#30b0fe', emoji: '⏱️', description: 'Professional-grade wrist wraps for weightlifting', stock: 15 },
+        { id: 9, name: 'Seamless Sports Tee', price: 69.99, category: 'tops', size: 'XS-XL', color: '#14b8a6', emoji: '👕', description: 'Seamless training tee with sweat-wicking fabric', stock: 35 },
+        { id: 10, name: 'Powerlifting Belt', price: 129.99, category: 'accessories', size: 'S-XL', color: '#1f2937', emoji: '🏋️', description: 'Sturdy lifting belt for core stability and support', stock: 18 },
+        { id: 11, name: 'Sportif Hoodie', price: 159.99, category: 'tops', size: 'XS-XL', color: '#f8fafc', emoji: '🧥', description: 'Soft white hoodie with Sportif logo artwork', stock: 25 }
       ]);
     }
   }
